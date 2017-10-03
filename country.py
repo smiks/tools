@@ -111,13 +111,13 @@ def country_abb_map(country):
 	}
 
 	try:
-		res = cabb[country_abb]
+		res = cabb[country]
 	except:
-		res = country_abb
+		res = country
 
 	return res
 
-def abb_country_map_3(abb):
+def abb_country_map_3(country_abb):
 	"""
 		Maps country abbreviation (alpha-3) to name of country.
 	"""
@@ -178,7 +178,7 @@ def abb_country_map_3(abb):
 	return res
 
 
-def country_abb_map_3(abb):
+def country_abb_map_3(country):
 	"""
 		Maps country name to country abbreviation (alpha-3).
 	"""
@@ -233,8 +233,8 @@ def country_abb_map_3(abb):
 
 
 	try:
-		res = cabb[country_abb]
+		res = cabb[country]
 	except:
-		res = country_abb
+		res = country
 
 	return res
