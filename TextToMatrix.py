@@ -96,10 +96,16 @@ class TextToMatrix:
         print()
 
         if description_row and len(self.matrix):
-            print('\t'.join(list('c'*len(self.matrix[0]))), end='')
+            ml = len(self.matrix[0])
+
+            print('\t'.join(list('c'*ml)), end='')
             if len(self.class_titles):
-                print(end='\t')
-                print('\t'.join(list(['class'] * len(self.class_titles))), end='')
+                cl = len(self.class_titles)
+                print('\t', end='')
+                print('\t'.join(list('d' * cl)), end='')
+                print()
+                print('\t'*ml, end='\t')
+                print('\t'.join(list(['class'] * cl)), end='')
             print()
 
         for m, c in zip(self.matrix, self.classes):
@@ -131,11 +137,15 @@ class TextToMatrix:
                 file.write('\n')
 
                 if description_row and len(self.matrix):
-                    file.write('\t'.join(list('c'*len(self.matrix[0]))))
+                    ml = len(self.matrix[0])
+                    file.write('\t'.join(list('c'*ml)))
                     if len(self.class_titles):
+                        cl = len(self.class_titles)
                         file.write('\t')
-                        lct = len(self.class_titles)
-                        file.write('\t'.join(list(['class'] * lct)))
+                        file.write('\t'.join(list('d' * cl)))
+                        file.write('\n')
+                        file.write('\t'*ml)
+                        file.write('\t'.join(list(['class'] * cl)))
                     file.write('\n')
 
                 for e, z in enumerate(zip(self.matrix, self.classes)):
