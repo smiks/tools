@@ -12,6 +12,8 @@ class TextToMatrix:
         self.text_tokens = []
         self.matrix_titles = []
         self.matrix = []
+        self.class_titles = []
+        self.classes = []
 
     def _clean(self):
         """
@@ -22,11 +24,12 @@ class TextToMatrix:
         self.union_of_words = set()
         self.matrix_titles = []
 
-    def add_text(self, text, force_lower=True):
+    def add_text(self, text, classes=[], force_lower=True):
         """
         If matrix is already generated it will be purged.
 
         :param text: text to be added in a matrix.
+        :param classes: classes assigned for this text
         :param force_lower: if True, all words will be in lower case.
         :return:
         """
@@ -34,11 +37,17 @@ class TextToMatrix:
         if force_lower:
             text = text.lower()
 
-        if len(text) > 0:
+        if len(text):
             self.list_of_texts.append(text)
+
+        if len(classes):
+            self.classes.append(classes)
 
         if len(self.matrix_titles):
             self._clean()
+
+    def add_class_title(self, class_):
+        self.class_titles.append(class_)
 
     @staticmethod
     def _tokenize(text):
@@ -53,9 +62,8 @@ class TextToMatrix:
             m = re.match(regex, word)
             if m is not None:
                 word = m.group()
-            tokens.append(word)
+                tokens.append(word)
 
-        print("TOKENS: ", tokens)
         return tokens
 
     def _generate_union(self):
@@ -79,30 +87,77 @@ class TextToMatrix:
 
             self.matrix.append(tmp)
 
-    def print_matrix(self):
-        print(self.matrix)
-        print('\t'.join(self.matrix_titles))
-        for m in self.matrix:
-            print('\t'.join(map(str, m)))
+    def print_matrix(self, description_row=False):
 
-    def write_to_file(self, filename):
+        print('\t'.join(self.matrix_titles), end='')
+        if len(self.class_titles):
+            print(end='\t')
+            print('\t'.join(self.class_titles), end='')
+        print()
+
+        if description_row and len(self.matrix):
+            ml = len(self.matrix[0])
+
+            print('\t'.join(list('c'*ml)), end='')
+            if len(self.class_titles):
+                cl = len(self.class_titles)
+                print('\t', end='')
+                print('\t'.join(list('d' * cl)), end='')
+                print()
+                print('\t'*ml, end='\t')
+                print('\t'.join(list(['class'] * cl)), end='')
+            print()
+
+        for m, c in zip(self.matrix, self.classes):
+            print('\t'.join(map(str, m)), end='')
+            if len(c):
+                print(end='\t')
+                print('\t'.join(map(str, c)), end='')
+            print()
+
+    def write_to_file(self, filename, description_row=False):
         """
             Tries to store matrix in tab separated format.
             If matrix is successfully stored in a file function returns True
             otherwise False.
-        :param filename:
+        :param filename: Path to file
+        :param description_row: If True, additional row will appear, which will
+        describe features and classes.
         :return:
         """
 
         try:
             open(filename, 'w').close()
             with open(filename, 'a') as file:
-                file.write('\t'.join(self.matrix_titles) + '\n')
-                for e, m in enumerate(self.matrix):
+                file.write('\t'.join(self.matrix_titles))
+
+                if len(self.class_titles):
+                    file.write('\t')
+                    file.write('\t'.join(self.class_titles))
+                file.write('\n')
+
+                if description_row and len(self.matrix):
+                    ml = len(self.matrix[0])
+                    file.write('\t'.join(list('c'*ml)))
+                    if len(self.class_titles):
+                        cl = len(self.class_titles)
+                        file.write('\t')
+                        file.write('\t'.join(list('d' * cl)))
+                        file.write('\n')
+                        file.write('\t'*ml)
+                        file.write('\t'.join(list(['class'] * cl)))
+                    file.write('\n')
+
+                for e, z in enumerate(zip(self.matrix, self.classes)):
                     endln = ""
+                    m, c = z
                     if e+1 < len(self.matrix):
                         endln = "\n"
-                    file.write('\t'.join(map(str, m)) + endln)
+                    file.write('\t'.join(map(str, m)))
+                    if len(c):
+                        file.write('\t')
+                        file.write('\t'.join(map(str, c)))
+                    file.write(endln)
         except:
             return False
 
