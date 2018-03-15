@@ -1,12 +1,18 @@
 def rss_parser(url):
     import re
     import feedparser
-    def _parse_img(content):
+    def _parse_img(content, alt):
         matches = re.findall(r'\ssrc="([^"]+)"', content)
         matches = ' '.join(matches)
         res = None
         if len(matches):
             res = matches
+
+        # try alternative
+        if res is None:
+            for link in alt:
+                if "image" in link.get("type", ""):
+                    res = link.get("href", None)
         return res
 
     def _clean_html(content):
@@ -34,9 +40,8 @@ def rss_parser(url):
             "desc": _clean_html( getattr(entry, "summary", "") ),
             "pubDate": getattr(entry, "published", ""),
             "url": getattr(entry, "link", ""),
-            "urlImg": _parse_img( getattr(entry, "summary", "") )
+            "urlImg": _parse_img( getattr(entry, "summary", ""), entry.get("links", None) )
         }
-
         results["articles"].append(tmp)
 
     return results
