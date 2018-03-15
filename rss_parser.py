@@ -1,4 +1,4 @@
-def rss_parser(url):
+def rss_parser(url, force_https=False):
     import re
     import feedparser
     def _parse_img(content, alt):
@@ -34,12 +34,15 @@ def rss_parser(url):
     feed_entries = feed.entries
 
     for entry in feed_entries:
+        url = getattr(entry, "link", "")
+        if force_https:
+            url = url.replace("http://", "https://")
         tmp = {
             "title": getattr(entry, "title", ""),
             "author": getattr(entry, "author", ""),
             "desc": _clean_html( getattr(entry, "summary", "") ),
             "pubDate": getattr(entry, "published", ""),
-            "url": getattr(entry, "link", ""),
+            "url": url,
             "urlImg": _parse_img( getattr(entry, "summary", ""), entry.get("links", None) )
         }
         results["articles"].append(tmp)
